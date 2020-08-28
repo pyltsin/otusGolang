@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	now := time.Now()
-	ntpNow, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
+	currentTime := time.Now()
+	exactTime, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
 	if err != nil {
 		log.Fatalf("Error getting time: %s", err)
 	}
 
-	fmt.Printf("current time: %s\n", now.Round(0))
-	fmt.Printf("exact time: %s\n", ntpNow.Round(0))
+	fmt.Printf("current time: %s\n", currentTime.Round(0))
+	fmt.Printf("exact time: %s\n", exactTime.Round(0))
 }
