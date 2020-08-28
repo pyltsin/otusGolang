@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	now := time.Now()
 	ntpNow, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
 	if err != nil {
