@@ -22,7 +22,6 @@ func Unpack(text string) (string, error) {
 
 	for i, r := range text {
 
-		//входит в допустимый набор символов
 		if !isAvailable(r) {
 			return emptyString, ErrInvalidString
 		}
@@ -45,7 +44,7 @@ func Unpack(text string) (string, error) {
 			continue
 		}
 
-		if unicode.IsDigit(r) {
+		if isDigit(r) {
 			//если повторять нечего значит ошибка - два подряд числа
 			if isEmpty(buffer) {
 				return emptyString, ErrInvalidString
@@ -77,6 +76,7 @@ func isDigit(r rune) bool {
 	return unicode.IsDigit(r)
 }
 
+//входит в допустимый набор символов.
 func isAvailable(r rune) bool {
 	return isDigitOrEscaped(r) || isLetter(r)
 }
