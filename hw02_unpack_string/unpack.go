@@ -10,7 +10,7 @@ import (
 var ErrInvalidString = errors.New("invalid string")
 
 const escaped = "\\"
-const recordedEscaped = "\\\\"
+const recordedEscaped = escaped + escaped
 const emptyString = ""
 
 func Unpack(text string) (string, error) {
@@ -40,15 +40,15 @@ func Unpack(text string) (string, error) {
 				return emptyString, ErrInvalidString
 			}
 			//делаем набор
-			countRepeat, _ := strconv.Atoi(string(r))
-			repeatedSymbol := strings.Repeat(getNextLetter(buffer), countRepeat)
-			builder.WriteString(repeatedSymbol)
+			repeatCount, _ := strconv.Atoi(string(r))
+			repeatedToken := strings.Repeat(nextToken(buffer), repeatCount)
+			builder.WriteString(repeatedToken)
 			buffer.Reset()
 			continue
 		}
 
 		//если буква, то запихиваем в буффер, а оттуда заполняем builder
-		builder.WriteString(getNextLetter(buffer))
+		builder.WriteString(nextToken(buffer))
 		buffer.Reset()
 		buffer.WriteRune(r)
 	}
@@ -71,13 +71,13 @@ func isEscaped(buffer *strings.Builder) bool {
 }
 
 func isEmpty(buffer *strings.Builder) bool {
-	return len(getNextLetter(buffer)) == 0
+	return len(nextToken(buffer)) == 0
 }
 
-func getNextLetter(buffer *strings.Builder) string {
-	nextLetter := buffer.String()
-	if nextLetter == recordedEscaped {
+func nextToken(buffer *strings.Builder) string {
+	next := buffer.String()
+	if next == recordedEscaped {
 		return escaped
 	}
-	return nextLetter
+	return next
 }
