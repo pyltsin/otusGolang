@@ -21,7 +21,6 @@ func Unpack(text string) (string, error) {
 	var buffer = &strings.Builder{}
 
 	for i, r := range text {
-
 		if !isAvailable(r) {
 			return emptyString, ErrInvalidString
 		}
