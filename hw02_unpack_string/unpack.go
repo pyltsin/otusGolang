@@ -20,7 +20,18 @@ func Unpack(text string) (string, error) {
 
 	var buffer = &strings.Builder{}
 
-	for _, r := range text {
+	for i, r := range text {
+
+		//входит в допустимый набор символов
+		if !isAvailable(r) {
+			return emptyString, ErrInvalidString
+		}
+
+		//начинается только с буквы
+		if i == 0 && !isLetter(r) {
+			return emptyString, ErrInvalidString
+		}
+
 		//если есть символ экранирования
 		if isEscaped(buffer) {
 			//экранировать можно только цифры и слэш
@@ -58,20 +69,32 @@ func Unpack(text string) (string, error) {
 	return builder.String(), nil
 }
 
+func isLetter(r rune) bool {
+	return unicode.IsLetter(r)
+}
+
 func isDigit(r rune) bool {
 	return unicode.IsDigit(r)
 }
 
+func isAvailable(r rune) bool {
+	return isDigitOrEscaped(r) || isLetter(r)
+}
+
 func isDigitOrEscaped(r rune) bool {
-	return unicode.IsDigit(r) || string(r) == escaped
+	return isDigit(r) || isEscapedRune(r)
 }
 
 func isEscaped(buffer *strings.Builder) bool {
 	return buffer.String() == escaped
 }
 
+func isEscapedRune(r rune) bool {
+	return string(r) == escaped
+}
+
 func isEmpty(buffer *strings.Builder) bool {
-	return len(nextToken(buffer)) == 0
+	return len(buffer.String()) == 0
 }
 
 func nextToken(buffer *strings.Builder) string {
