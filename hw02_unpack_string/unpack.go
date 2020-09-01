@@ -20,7 +20,7 @@ func Unpack(text string) (string, error) {
 
 	var buffer = &strings.Builder{}
 
-	for _, r := range text { //если цифра, то повторяем buffer
+	for _, r := range text {
 		//если есть символ экранирования
 		if isEscaped(buffer) {
 			//экранировать можно только цифры и слэш
