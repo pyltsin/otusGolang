@@ -57,4 +57,27 @@ func TestTop10(t *testing.T) {
 			require.ElementsMatch(t, expected, Top10(text))
 		}
 	})
+
+	t.Run("different forms of words", func(t *testing.T) {
+		testText := "нога ногу ноги"
+		expected := []string{"нога", "ногу", "ноги"}
+		require.Subset(t, expected, Top10(testText))
+	})
+
+	t.Run("different case of words", func(t *testing.T) {
+		testText := "нога Нога"
+		expected := []string{"нога", "Нога"}
+		require.Subset(t, expected, Top10(testText))
+	})
+
+	t.Run("punctuations", func(t *testing.T) {
+		testText := "нога, нога нога- -"
+		expected := []string{"нога,", "нога", "нога-", "-"}
+		require.Subset(t, expected, Top10(testText))
+	})
+	t.Run("1 word", func(t *testing.T) {
+		testText := "1"
+		expected := []string{"1"}
+		require.Subset(t, expected, Top10(testText))
+	})
 }
