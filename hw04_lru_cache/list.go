@@ -46,7 +46,7 @@ func (l *list) PushFront(v interface{}) *ListItem {
 }
 
 func (l *list) pushFrontPointer(head *ListItem) *ListItem {
-	l.len = l.len + 1
+	l.len++
 
 	if l.front != nil {
 		head.Next = l.front
@@ -54,11 +54,10 @@ func (l *list) pushFrontPointer(head *ListItem) *ListItem {
 		l.front.Prev = head
 		l.front = head
 		return head
-	} else {
-		l.front = head
-		l.back = head
-		return head
 	}
+	l.front = head
+	l.back = head
+	return head
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
@@ -68,7 +67,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 		Prev:  l.back,
 	}
 
-	l.len = l.len + 1
+	l.len++
 
 	if l.back != nil {
 		back.Prev = l.back
@@ -76,18 +75,17 @@ func (l *list) PushBack(v interface{}) *ListItem {
 		l.back.Next = back
 		l.back = back
 		return back
-	} else {
-		l.front = back
-		l.back = back
-		return back
 	}
+	l.front = back
+	l.back = back
+	return back
 }
 
 func (l *list) Remove(i *ListItem) {
 	next := i.Next
 	prev := i.Prev
 
-	l.len = l.len - 1
+	l.len--
 
 	if next != nil { // не последний
 		next.Prev = prev

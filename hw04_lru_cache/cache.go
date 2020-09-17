@@ -63,9 +63,8 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 		cachedItem := getAsCachedItem(item)
 		l.queue.MoveToFront(item)
 		return cachedItem.value, true
-	} else {
-		return nil, false
 	}
+	return nil, false
 }
 
 func (l *lruCache) Clear() {
