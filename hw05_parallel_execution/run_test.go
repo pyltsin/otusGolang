@@ -125,7 +125,7 @@ func TestAdditional(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
 	t.Run("if error count =0, than ErrErrorsLimitExceeded", func(t *testing.T) {
-		tasksCount := 50
+		tasksCount := 40
 		tasks := make([]Task, 0, tasksCount)
 
 		workersCount := 10
@@ -136,7 +136,7 @@ func TestAdditional(t *testing.T) {
 
 	})
 	t.Run("if error count <0, than ErrErrorsLimitExceeded", func(t *testing.T) {
-		tasksCount := 50
+		tasksCount := 40
 		tasks := make([]Task, 0, tasksCount)
 
 		workersCount := 10
