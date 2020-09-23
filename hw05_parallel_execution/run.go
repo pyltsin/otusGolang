@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 )
 
-var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
-
 type Task func() error
+
+var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type TaskContext struct {
 	errorCount *int32
