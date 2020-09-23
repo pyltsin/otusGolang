@@ -12,8 +12,7 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type TaskContext struct {
 	errorCount *int32
-	taskCount  *int32
-	tasks      *[]Task
+	in         chan Task
 	wg         sync.WaitGroup
 	maxError   int32
 }
@@ -25,13 +24,19 @@ func Run(tasks []Task, n int, m int) error {
 	}
 
 	var errorPoint int32 = 0
-	var startPoint int32 = -1
+
+	var in = make(chan Task, len(tasks))
+
+	for _, task := range tasks {
+		in <- task
+	}
+
+	close(in)
 
 	context := TaskContext{
 		errorCount: &errorPoint,
-		taskCount:  &startPoint,
+		in:         in,
 		wg:         sync.WaitGroup{},
-		tasks:      &tasks,
 		maxError:   int32(m),
 	}
 
@@ -59,13 +64,11 @@ func worker(context *TaskContext) {
 			return
 		}
 
-		currentTask := atomic.AddInt32(context.taskCount, 1)
+		task, ok := <-context.in
 
-		if int(currentTask) >= len(*context.tasks) {
+		if !ok {
 			return
 		}
-
-		task := (*context.tasks)[currentTask]
 
 		err := task()
 		if err != nil {
