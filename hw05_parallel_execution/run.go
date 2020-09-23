@@ -67,6 +67,5 @@ func worker(context *TaskContext) {
 		if err != nil {
 			atomic.AddInt32(context.errorCount, 1)
 		}
-
 	}
 }
