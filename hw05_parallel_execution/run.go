@@ -13,8 +13,8 @@ type Task func() error
 type TaskContext struct {
 	errorCount *int32
 	taskCount  *int32
-	wg         sync.WaitGroup
 	tasks      *[]Task
+	wg         sync.WaitGroup
 	maxError   int32
 }
 
