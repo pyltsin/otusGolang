@@ -1,4 +1,4 @@
-package hw05_parallel_execution //nolint:golint,stylecheck
+package hw05_parallel_execution2 //nolint:golint,stylecheck
 
 import (
 	"errors"
