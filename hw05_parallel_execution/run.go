@@ -58,21 +58,15 @@ func Run(tasks []Task, n int, m int) error {
 func worker(context *TaskContext) {
 	defer context.wg.Done()
 
-	for {
+	for task := range context.in {
 		localErrorCount := atomic.LoadInt32(context.errorCount)
 		if localErrorCount >= context.maxError {
 			return
 		}
-
-		task, ok := <-context.in
-
-		if !ok {
-			return
-		}
-
 		err := task()
 		if err != nil {
 			atomic.AddInt32(context.errorCount, 1)
 		}
+
 	}
 }

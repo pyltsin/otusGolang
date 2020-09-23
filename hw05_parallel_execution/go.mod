@@ -1,4 +1,4 @@
-module github.com/pyltsin/otusGolang/hw05_parallel_execution2
+module github.com/pyltsin/otusGolang/hw05_parallel_execution
 
 go 1.14
 
