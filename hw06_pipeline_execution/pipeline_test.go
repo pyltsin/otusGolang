@@ -98,8 +98,8 @@ func TestPipeline(t *testing.T) {
 			(int64(sleepPerStage)*int64(len(manyStages)+number-1)+int64(fault))*int64(2)/int64(3))
 
 		startValue := 10
-		for actual := range result {
-			require.Equal(t, startValue, actual)
+		for _, actual := range result {
+			require.Equal(t, strconv.Itoa(startValue), actual)
 			startValue++
 		}
 	})
