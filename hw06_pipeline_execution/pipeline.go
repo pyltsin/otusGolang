@@ -16,7 +16,6 @@ type (
 	MessageBi  = chan Message
 	MessageIn  = <-chan Message
 	MessageOut = MessageIn
-	den        = MessageIn
 )
 
 type Stage func(in In) (out Out)
