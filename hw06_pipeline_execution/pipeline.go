@@ -40,7 +40,7 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 func createPipeline(stages []Stage, in In, done In, numberInEachStages int) Out {
 	nextChannel := convertMessage(in, done)
 	for stageNumber, stage := range stages {
-		nextChannel = runStageInParallel(stage, nextChannel, done, numberInEachStages, stageNumber)
+		nextChannel = runStageInParallelGoroutins(stage, nextChannel, done, numberInEachStages, stageNumber)
 	}
 	return sortFromParallel(nextChannel, done)
 }
@@ -69,7 +69,7 @@ func convertMessage(in In, done In) MessageOut {
 }
 
 // Запускает stage в параллеле.
-func runStageInParallel(stage Stage, in MessageOut, done Out, numberInEachStages int, numberStage int) MessageOut {
+func runStageInParallelGoroutins(stage Stage, in MessageOut, done Out, numberInEachStages int, numberStage int) MessageOut {
 	messageOut := make(MessageBi)
 	go func() {
 		// читается всеми читателями, поэтому количество указано, меньше на 1,
@@ -86,7 +86,7 @@ func runStageInParallel(stage Stage, in MessageOut, done Out, numberInEachStages
 			wg.Wait()
 			// закрываем выходной поток
 			close(messageOut)
-			fmt.Printf("runStageInParallel end, numberStage - %v\n", numberStage)
+			fmt.Printf("runStageInParallelGoroutins end, numberStage - %v\n", numberStage)
 		}(funIn, messageOut)
 
 		// ради чего все и затевалось - запуск stage в несколько горутин
@@ -98,10 +98,10 @@ func runStageInParallel(stage Stage, in MessageOut, done Out, numberInEachStages
 		for nextValue := range in {
 			select {
 			case <-done:
-				fmt.Printf("runStageInParallel. close - received done, numberStage - %v\n", numberStage)
+				fmt.Printf("runStageInParallelGoroutins. close - received done, numberStage - %v\n", numberStage)
 				return
 			default:
-				fmt.Printf("runStageInParallel new value: %#v, numberStage - %v\n", nextValue, numberStage)
+				fmt.Printf("runStageInParallelGoroutins new value: %#v, numberStage - %v\n", nextValue, numberStage)
 				funIn <- nextValue
 			}
 		}
