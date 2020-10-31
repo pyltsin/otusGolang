@@ -1,6 +1,7 @@
 package hw06_pipeline_execution //nolint:golint,stylecheck
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -36,6 +37,17 @@ func TestPipeline(t *testing.T) {
 		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
 	}
 
+	stageNumbers := 10
+	manyStages := make([]Stage, 0)
+	for i := 0; i < stageNumbers; i++ {
+		manyStages = append(manyStages, g("Adder (+ 1): "+strconv.Itoa(i),
+			func(v interface{}) interface{} { return v.(int) + 1 }))
+	}
+	manyStages = append(manyStages, g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }))
+
+	i := 1
+	fmt.Print(i)
+
 	t.Run("simple case", func(t *testing.T) {
 		in := make(Bi)
 		data := []int{1, 2, 3, 4, 5}
@@ -59,6 +71,37 @@ func TestPipeline(t *testing.T) {
 			int64(elapsed),
 			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
 			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault))
+	})
+
+	t.Run("big number - check parallel, it takes a long time", func(t *testing.T) {
+
+		in := make(Bi)
+		number := 100
+
+		go func() {
+			for i := 0; i < number; i++ {
+				in <- i
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0, 10)
+		start := time.Now()
+		for s := range ExecutePipeline(in, nil, manyStages...) {
+			result = append(result, s.(string))
+		}
+		elapsed := time.Since(start)
+
+		require.Less(t,
+			int64(elapsed),
+			// ускорение минимум в 1,5 раза
+			(int64(sleepPerStage)*int64(len(manyStages)+number-1)+int64(fault))*int64(2)/int64(3))
+
+		startValue := 10
+		for _, actual := range result {
+			require.Equal(t, strconv.Itoa(startValue), actual)
+			startValue++
+		}
 	})
 
 	t.Run("done case", func(t *testing.T) {
