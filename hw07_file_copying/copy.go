@@ -22,7 +22,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 
 	toFile, err := os.Create(toPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get stat for destination file: %w", err)
 	}
 	defer func() {
 		_ = toFile.Close()
@@ -46,7 +46,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 
 	_, err = fromFile.Seek(offset, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to seek source file: %w", err)
 	}
 	bar := pb.Full.Start64(limit)
 
@@ -57,7 +57,7 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	bar.Finish()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to copy: %w", err)
 	}
 	return nil
 }
