@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb"
 	"io"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -13,32 +14,20 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
-type BarReader struct {
-	file *os.File
-	pb   *pb.ProgressBar
-}
-
-func (receiver *BarReader) Read(p []byte) (n int, err error) {
-	read, err := receiver.file.Read(p)
-	if err == io.EOF {
-		receiver.pb.Finish()
-	}
-	receiver.pb.Add(read)
-	return read, err
-}
-
 func Copy(fromPath string, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath)
 	if err != nil {
 		return fmt.Errorf("failed to open source file: %w", err)
 	}
-	defer fromFile.Close()
 
 	toFile, err := os.Create(toPath)
 	if err != nil {
 		return err
 	}
-	defer toFile.Close()
+	defer func() {
+		_ = toFile.Close()
+		_ = fromFile.Close()
+	}()
 
 	stat, err := fromFile.Stat()
 	if err != nil {
@@ -59,14 +48,13 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
-	bar := pb.StartNew(int(limit))
+	bar := pb.Full.Start64(limit)
 
-	pbReader := BarReader{fromFile, bar}
+	barReader := bar.NewProxyReader(fromFile)
 
-	bufferSize := 2 << 10
-	buffer := make([]byte, bufferSize)
+	_, err = io.Copy(toFile, io.LimitReader(barReader, limit))
 
-	_, err = io.CopyBuffer(toFile, io.LimitReader(&pbReader, limit), buffer)
+	bar.Finish()
 
 	if err != nil {
 		return err
