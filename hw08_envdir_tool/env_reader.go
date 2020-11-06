@@ -37,7 +37,7 @@ func ReadDir(dir string) (Environment, error) {
 			result[val.Name()] = env
 		}
 	}
-	return result, err
+	return result, nil
 }
 
 func processFile(fileName string) (string, error) {
@@ -51,7 +51,7 @@ func processFile(fileName string) (string, error) {
 
 	fileStat, err := file.Stat()
 	if err != nil {
-		return "", fmt.Errorf("error geting stat: %w", err)
+		return "", fmt.Errorf("error getting stat: %w", err)
 	}
 	if fileStat.Size() == 0 {
 		return "", nil
