@@ -37,7 +37,8 @@ func Validate(v interface{}) ValidationErrors {
 
 func validateField(value reflect.Value, typeValue reflect.StructField) ValidationErrors {
 	var errors ValidationErrors
-	switch value.Kind() { //nolint:exhaustive потому что поддерживаем только 2 типа
+	// потому что поддерживаем только 2 типа
+	switch value.Kind() { //nolint:exhaustive
 	case reflect.String:
 		return validateString(value, typeValue)
 	case reflect.Int:
