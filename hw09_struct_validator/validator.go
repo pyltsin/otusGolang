@@ -105,20 +105,17 @@ func validateString(value reflect.Value, typeValue reflect.StructField) (Validat
 	}
 	errs = append(errs, regexpString...)
 
-	inString, err := validateInString(tag, strValue, typeValue)
-	if err != nil {
-		return nil, err
-	}
+	inString := validateInString(tag, strValue, typeValue)
 	errs = append(errs, inString...)
 
 	return errs, nil
 }
 
-func validateInString(tag map[string]string, strValue string, typeValue reflect.StructField) (ValidationErrors, error) {
+func validateInString(tag map[string]string, strValue string, typeValue reflect.StructField) ValidationErrors {
 	var errs ValidationErrors
 	inValueString, ok := tag["in"]
 	if !ok {
-		return errs, nil
+		return errs
 	}
 	inSlice := strings.Split(inValueString, ",")
 	var findIn = false
@@ -132,7 +129,7 @@ func validateInString(tag map[string]string, strValue string, typeValue reflect.
 			ValidationError{Field: typeValue.Name, Err: ErrNotInSet})
 	}
 
-	return errs, nil
+	return errs
 }
 
 func validateRegexpString(tag map[string]string, strValue string, typeValue reflect.StructField) (ValidationErrors, error) {
