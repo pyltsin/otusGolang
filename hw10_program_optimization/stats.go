@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// easyjson -all stats.go
+// easyjson -all stats.go.
 type User struct {
 	ID       int
 	Name     string
