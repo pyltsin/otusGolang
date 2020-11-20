@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//easyjson -all stats.go
+// easyjson -all stats.go
 type User struct {
 	ID       int
 	Name     string
@@ -32,7 +32,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		bytes, err := rd.ReadBytes('\n')
 
 		if err != nil && !errors.Is(err, io.EOF) {
-			return nil, err
+			return nil, err //nolint:wrapcheck
 		}
 
 		if errors.Is(err, io.EOF) {
