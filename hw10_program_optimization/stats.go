@@ -3,7 +3,6 @@ package hw10_program_optimization //nolint:golint,stylecheck
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -24,22 +23,15 @@ type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	result := make(DomainStat)
-	rd := bufio.NewReader(r)
+
+	scanner := bufio.NewScanner(r)
+
 	user := User{}
 	pattern := "." + domain
-	var finish bool
-	for !finish {
-		bytes, err := rd.ReadBytes('\n')
+	for scanner.Scan() {
+		bytes := scanner.Bytes()
 
-		if err != nil && !errors.Is(err, io.EOF) {
-			return nil, err //nolint:wrapcheck
-		}
-
-		if errors.Is(err, io.EOF) {
-			finish = true
-		}
-
-		err = unmarshal(bytes, &user)
+		err := unmarshal(bytes, &user)
 		if err != nil {
 			return nil, err
 		}
@@ -58,15 +50,16 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			continue
 		}
 
-		i, ok := result[domain]
-		if !ok {
-			result[domain] = 1
-		} else {
-			result[domain] = i + 1
-		}
+		result[domain]++
+
+		resetEmail(&user)
 	}
 
 	return result, nil
+}
+
+func resetEmail(u *User) {
+	u.Email = ""
 }
 
 func getDomain(user *User, pattern string) (string, error) {
