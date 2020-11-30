@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"time"
@@ -24,17 +23,17 @@ type TelnetClient interface {
 
 func (c *Client) Connect() (err error) {
 	c.conn, err = net.DialTimeout("tcp", c.address, c.timeout)
-	return fmt.Errorf("not connect: %w", err)
+	return err //nolint:wrapcheck
 }
 
 func (c *Client) Send() error {
 	_, err := io.Copy(c.conn, c.in)
-	return fmt.Errorf("not send: %w", err)
+	return err //nolint:wrapcheck
 }
 
 func (c *Client) Receive() error {
 	_, err := io.Copy(c.out, c.conn)
-	return fmt.Errorf("not receive: %w", err)
+	return err //nolint:wrapcheck
 }
 func (c *Client) Close() error {
 	return c.conn.Close()
