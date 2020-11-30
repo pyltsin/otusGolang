@@ -4,6 +4,8 @@ package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -36,4 +38,26 @@ func TestGetDomainStat(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
 	})
+}
+
+func TestErrorNotParse(t *testing.T) {
+	data := `{"Id2":1}`
+	_, err := GetDomainStat(bytes.NewBufferString(data), "com")
+	assert.True(t, err != nil)
+}
+
+func TestWrongEmail(t *testing.T) {
+
+	tests := []string{
+		`{"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynchbroWsecat.com","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}`,
+		`{"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynchbro@Wsecatcom","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}`,
+		`{"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynchbroWsecatcom","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}`,
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			_, err := GetDomainStat(bytes.NewBufferString(tt), "com")
+			assert.True(t, err != nil)
+		})
+	}
 }
