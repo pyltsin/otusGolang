@@ -57,9 +57,6 @@ func (t *Client) Receive() (err error) {
 	}
 	for t.connScanner.Scan() {
 		text := t.connScanner.Text()
-		if text == "" {
-			break
-		}
 		_, err = t.out.Write([]byte(text + "\n"))
 		if err != nil {
 			return err //nolint:wrapcheck
@@ -75,9 +72,6 @@ func (t *Client) Send() (err error) {
 	}
 	for t.inScanner.Scan() {
 		text := t.inScanner.Text()
-		if text == "" {
-			break
-		}
 
 		_, err = t.conn.Write([]byte(text + "\n"))
 		if err != nil {
