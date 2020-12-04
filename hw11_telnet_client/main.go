@@ -25,7 +25,6 @@ func init() {
 }
 
 func main() {
-
 	flag.Parse()
 	args := os.Args
 
@@ -60,7 +59,7 @@ func main() {
 
 	case err = <-errs:
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 		return
 	}
