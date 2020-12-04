@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net"
 	"time"
@@ -46,8 +45,6 @@ func (t *Client) Connect() (err error) {
 		return err //nolint:wrapcheck
 	}
 
-	fmt.Println("...Connected")
-
 	t.connScanner = bufio.NewScanner(t.conn)
 	t.inScanner = bufio.NewScanner(t.in)
 
@@ -68,7 +65,6 @@ func (t *Client) Receive() (err error) {
 			return err //nolint:wrapcheck
 		}
 	}
-	fmt.Println("...Connection was closed by peer")
 
 	return nil
 }
@@ -89,7 +85,6 @@ func (t *Client) Send() (err error) {
 		}
 	}
 
-	fmt.Println("...EOF")
 	return nil
 }
 func (t *Client) Close() (err error) {
