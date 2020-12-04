@@ -13,29 +13,33 @@ import (
 )
 
 var (
-	timeout          time.Duration
-	ErrNotEnoughArgs = errors.New("should be 3 at least")
-	signals          = make(chan os.Signal, 1)
+	timeout time.Duration
 )
 
 const (
 	minLenArgs = 3
+	maxLenArgs = 4
 )
 
 func init() {
-	flag.DurationVar(&timeout, "timeout", 0, "connection timeout")
+	flag.DurationVar(&timeout, "timeout", time.Second*10, "timeout=time")
 }
 
 func main() {
+
 	flag.Parse()
-	if len(os.Args) < minLenArgs {
-		log.Fatal(ErrNotEnoughArgs)
+	args := os.Args
+
+	if (len(args) < minLenArgs) || (len(args) > maxLenArgs) {
+		log.Fatal(errors.New("not enough arguments, should be 3 at least"))
 	}
-	host := os.Args[2]
-	port := os.Args[3]
+	host := os.Args[len(os.Args)-2]
+	port := os.Args[len(os.Args)-1]
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	c := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
-
 	err := c.Connect()
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +53,9 @@ func main() {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	go work(c.Receive, cancelFunc)
 	go work(c.Send, cancelFunc)
-	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	select {
 	case <-signals:
