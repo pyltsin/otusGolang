@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"errors"
+	"fmt"
 	"io"
 	"net"
 	"time"
@@ -43,8 +43,10 @@ func (t *Client) Connect() (err error) {
 	t.conn, err = net.DialTimeout("tcp", t.address, t.timeout)
 
 	if err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
+
+	fmt.Println("...Connected")
 
 	t.connScanner = bufio.NewScanner(t.conn)
 	t.inScanner = bufio.NewScanner(t.in)
@@ -56,24 +58,40 @@ func (t *Client) Receive() (err error) {
 	if t.conn == nil {
 		return
 	}
-	if !t.connScanner.Scan() {
-		return errors.New("...Connection was closed by peer")
+	for t.connScanner.Scan() {
+		text := t.connScanner.Text()
+		if text == "" {
+			break
+		}
+		_, err = t.out.Write([]byte(text + "\n"))
+		if err != nil {
+			return err //nolint:wrapcheck
+		}
 	}
-	_, err = t.out.Write([]byte(t.connScanner.Text() + "\n"))
-	return err
+	fmt.Println("...Connection was closed by peer")
+
+	return nil
 }
 
 func (t *Client) Send() (err error) {
 	if t.conn == nil {
 		return
 	}
-	if !t.inScanner.Scan() {
-		return errors.New("...EOF")
-	}
-	_, err = t.conn.Write([]byte(t.inScanner.Text() + "\n"))
-	return err
-}
+	for t.inScanner.Scan() {
+		text := t.inScanner.Text()
+		if text == "" {
+			break
+		}
 
+		_, err = t.conn.Write([]byte(text + "\n"))
+		if err != nil {
+			return err //nolint:wrapcheck
+		}
+	}
+
+	fmt.Println("...EOF")
+	return nil
+}
 func (t *Client) Close() (err error) {
 	if t.conn != nil {
 		return t.conn.Close()

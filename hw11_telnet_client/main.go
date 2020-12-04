@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"flag"
 	"log"
@@ -36,9 +35,6 @@ func main() {
 	host := os.Args[len(os.Args)-2]
 	port := os.Args[len(os.Args)-1]
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-
 	c := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
 	err := c.Connect()
 	if err != nil {
@@ -50,27 +46,22 @@ func main() {
 		}
 	}()
 
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	go work(c.Receive, cancelFunc)
-	go work(c.Send, cancelFunc)
+	errs := make(chan error, 1)
+	go func() { errs <- c.Send() }()
+	go func() { errs <- c.Receive() }()
 
 	signals := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	select {
 	case <-signals:
-		cancelFunc()
 		signal.Stop(signals)
 		return
 
-	case <-ctx.Done():
-		close(signals)
+	case err = <-errs:
+		if err != nil {
+			log.Fatal(err)
+		}
 		return
-	}
-}
-
-func work(handler func() error, cancel context.CancelFunc) {
-	if err := handler(); err != nil {
-		cancel()
 	}
 }

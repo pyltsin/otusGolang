@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
 	"net"
@@ -110,6 +112,50 @@ func TestTelnetClient(t *testing.T) {
 
 			_, err = conn.Read(request)
 			require.EqualError(t, err, io.EOF.Error())
+		}()
+
+		wg.Wait()
+	})
+
+	t.Run("server down", func(t *testing.T) {
+		l, err := net.Listen("tcp", "127.0.0.1:")
+		require.NoError(t, err)
+		defer func() { require.NoError(t, l.Close()) }()
+
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+
+			in := &bytes.Buffer{}
+			out := &bytes.Buffer{}
+
+			timeout, err := time.ParseDuration("10s")
+			require.NoError(t, err)
+
+			closer := ioutil.NopCloser(in)
+			client := NewTelnetClient(l.Addr().String(), timeout, closer, out)
+			require.NoError(t, client.Connect())
+			defer func() { require.NoError(t, client.Close()) }()
+
+			_ = closer.Close()
+			err = client.Send()
+			require.NoError(t, err)
+
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			conn, err := l.Accept()
+			require.NoError(t, err)
+			require.NotNil(t, conn)
+			defer func() { require.NoError(t, conn.Close()) }()
+
+			request := make([]byte, 1024)
+			_, err = conn.Read(request)
+			assert.True(t, errors.Is(err, io.EOF))
 		}()
 
 		wg.Wait()
