@@ -2,12 +2,12 @@ package main
 
 import (
 	"bytes"
-	"errors"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -85,6 +85,9 @@ func TestTelnetClient(t *testing.T) {
 		go func() {
 			defer wg.Done()
 
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
+
 			in := &bytes.Buffer{}
 			out := &bytes.Buffer{}
 
@@ -98,6 +101,10 @@ func TestTelnetClient(t *testing.T) {
 			in.WriteString("hello\n")
 			err = client.Send()
 			require.NoError(t, err)
+
+			log.SetOutput(os.Stderr)
+
+			require.True(t, strings.Contains(buf.String(), "...EOF"))
 		}()
 
 		go func() {
@@ -126,6 +133,9 @@ func TestTelnetClient(t *testing.T) {
 		wg.Add(2)
 
 		go func() {
+			var buf bytes.Buffer
+			log.SetOutput(&buf)
+
 			defer wg.Done()
 
 			in := &bytes.Buffer{}
@@ -139,10 +149,11 @@ func TestTelnetClient(t *testing.T) {
 			require.NoError(t, client.Connect())
 			defer func() { require.NoError(t, client.Close()) }()
 
-			_ = closer.Close()
-			err = client.Send()
-			require.NoError(t, err)
+			err = client.Receive()
 
+			log.SetOutput(os.Stderr)
+
+			require.True(t, strings.Contains(buf.String(), "...Remote Server stopped"))
 		}()
 
 		go func() {
@@ -151,11 +162,8 @@ func TestTelnetClient(t *testing.T) {
 			conn, err := l.Accept()
 			require.NoError(t, err)
 			require.NotNil(t, conn)
-			defer func() { require.NoError(t, conn.Close()) }()
 
-			request := make([]byte, 1024)
-			_, err = conn.Read(request)
-			assert.True(t, errors.Is(err, io.EOF))
+			_ = conn.Close()
 		}()
 
 		wg.Wait()

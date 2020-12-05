@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
+	"log"
 	"net"
 	"time"
 )
@@ -15,6 +16,7 @@ type Client struct {
 	out         io.Writer
 	connScanner *bufio.Scanner
 	inScanner   *bufio.Scanner
+	stop        bool
 }
 
 type TelnetClient interface {
@@ -63,6 +65,11 @@ func (t *Client) Receive() (err error) {
 		}
 	}
 
+	if !t.stop {
+		t.stop = true
+		log.Println("...Remote Server stopped")
+	}
+
 	return nil
 }
 
@@ -77,6 +84,11 @@ func (t *Client) Send() (err error) {
 		if err != nil {
 			return err //nolint:wrapcheck
 		}
+	}
+
+	if !t.stop {
+		t.stop = true
+		log.Println("...EOF")
 	}
 
 	return nil
