@@ -1,0 +1,15 @@
+[Server]
+Address = "localhost"
+Port = "8080"
+
+[Logger]
+File = "./calendar.log"
+Level = "INFO"
+
+[Storage]
+inMemory = false
+SQLHost = "localhost"
+SQLPort = "5432"
+SQLDbase = "calendar"
+SQLUser = "calendar"
+SQLPass = "12345678"

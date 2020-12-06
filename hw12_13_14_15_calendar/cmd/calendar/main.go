@@ -1,22 +1,25 @@
 package main
 
-import (
+import ( //nolint:gci
 	"context"
 	"flag"
+	oslog "log"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config"
+	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage"
+
+	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app"
+	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "etc/calendar/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -27,13 +30,20 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	conf, err := config.NewConfig(configFile)
+	if err != nil {
+		oslog.Fatal(err)
+		return
+	}
+	_, err = logger.Init(conf)
+	if err != nil {
+		oslog.Fatal(err)
+		return
+	}
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(calendar)
+	storage := store.NewStore(conf)
+	var calendar = app.New(storage)
+	server := internalhttp.NewServer(conf, calendar)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -49,14 +59,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+			logger.Log.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	logger.Log.Info("calendar is running...")
 
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		os.Exit(1)
+		logger.Log.Error("failed to start http server: " + err.Error())
+		os.Exit(1) //nolint
 	}
 }
