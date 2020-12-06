@@ -1,6 +1,6 @@
 package main
 
-import ( //nolint:gci
+import (
 	"context"
 	"flag"
 	oslog "log"
@@ -8,8 +8,8 @@ import ( //nolint:gci
 	"os/signal"
 	"time"
 
-	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app" //nolint:gci
-	//nolint:gci
+	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app"
+
 	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config"
 	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage" //nolint:gci
 
