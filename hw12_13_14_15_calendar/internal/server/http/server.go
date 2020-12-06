@@ -46,7 +46,7 @@ func NewServer(conf config.Config, app Application) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logger.Log.Error("Could not listen")
-		return err //nolint:gofmt,wrapcheck
+		return err //nolint:wrapcheck
 	}
 
 	if <-ctx.Done(); true {
