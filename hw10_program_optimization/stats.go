@@ -1,14 +1,14 @@
 package hw10_program_optimization //nolint:golint,stylecheck
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
 )
 
+// easyjson -all stats.go.
 type User struct {
 	ID       int
 	Name     string
@@ -22,46 +22,64 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %s", err)
-	}
-	return countDomains(u, domain)
-}
-
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	scanner := bufio.NewScanner(r)
+
+	user := User{}
+	pattern := "." + domain
+	for scanner.Scan() {
+		bytes := scanner.Bytes()
+
+		err := unmarshal(bytes, &user)
 		if err != nil {
 			return nil, err
 		}
 
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		if user.Email == "" {
+			return nil, fmt.Errorf("not found email")
 		}
+
+		domain, err = getDomain(&user, pattern)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if domain == "" {
+			continue
+		}
+
+		result[domain]++
+
+		resetEmail(&user)
 	}
+
 	return result, nil
+}
+
+func resetEmail(u *User) {
+	u.Email = ""
+}
+
+func getDomain(user *User, pattern string) (string, error) {
+	containsPoint := strings.Contains(user.Email, ".")
+	if !containsPoint {
+		return "", fmt.Errorf("not contain '.'")
+	}
+
+	hasSuffix := strings.HasSuffix(user.Email, pattern)
+	if !hasSuffix {
+		return "", nil
+	}
+
+	splitted := strings.Split(user.Email, "@")
+	if len(splitted) != 2 {
+		return "", fmt.Errorf("not contain @")
+	}
+	return strings.ToLower(splitted[1]), nil
+}
+
+func unmarshal(line []byte, u json.Unmarshaler) error {
+	return u.UnmarshalJSON(line)
 }
