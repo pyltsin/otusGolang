@@ -8,12 +8,13 @@ import ( //nolint:gci
 	"os/signal"
 	"time"
 
+	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app" //nolint:gci
+	//nolint:gci
 	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config"
-	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage"
+	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage" //nolint:gci
 
-	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app"
-	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http"
+	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"            //nolint:gci
+	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http" //nolint:gci
 )
 
 var configFile string
