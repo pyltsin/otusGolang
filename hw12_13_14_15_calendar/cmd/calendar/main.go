@@ -1,11 +1,6 @@
 package main
 
 import (
-	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config" //nolint:gci
-	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http"
-	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage"
-
 	"context"
 	"flag"
 	oslog "log"
@@ -13,7 +8,11 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app" //nolint:gci
+	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app"
+	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config"
+	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http"
+	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
