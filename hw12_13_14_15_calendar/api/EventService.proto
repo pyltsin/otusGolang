@@ -1,7 +1,81 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
 package event;
 
-message Event {
-    // TODO
+option go_package=".;internalgrpc";
+
+message GetEventRequest {
+    string id = 1;
+}
+
+message GetEventResponse {
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp date = 3;
+    int64 latency = 4;
+    string note = 5;
+    int64 userId = 6;
+    int64 notify = 7;
+}
+
+message ListEventItem {
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp date = 3;
+    int64 latency = 4;
+    string note = 5;
+    int64 userId = 6;
+    int64 notify = 7;
+}
+
+message ListEventResponse {
+    repeated ListEventItem results = 1;
+}
+
+message CreateEventRequest {
+    string title = 2;
+    google.protobuf.Timestamp date = 3;
+    int64 latency = 4;
+    string note = 5;
+    int64 userId = 6;
+    int64 notify = 7;
+}
+
+message CreateEventResponse {
+    string id = 1;
+}
+
+message UpdateEventRequest {
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp date = 3;
+    int64 latency = 4;
+    string note = 5;
+    int64 userId = 6;
+    int64 notify = 7;
+}
+
+message UpdateEventResponse {
+    string id = 1;
+    string title = 2;
+    google.protobuf.Timestamp date = 3;
+    int64 latency = 4;
+    string note = 5;
+    int64 userId = 6;
+    int64 notify = 7;
+}
+
+message DeleteEventRequest {
+    string id = 1;
+}
+
+service Events {
+    rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}
+    rpc GetEventList(google.protobuf.Empty) returns (ListEventResponse) {}
+    rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+    rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}
+    rpc DeleteEvent(DeleteEventRequest) returns (google.protobuf.Empty) {}
 }

@@ -13,3 +13,8 @@ SQLPort = "5432"
 SQLDbase = "test"
 SQLUser = "test"
 SQLPass = "test"
+
+[Grpc]
+Address = "localhost"
+Port = "8080"
+enable = true
