@@ -14,6 +14,7 @@ type Config struct {
 	Logger  LoggerConf
 	Server  ServerConf
 	Storage StorageConf
+	Grpc    GrpcConf
 }
 
 type LoggerConf struct {
@@ -33,6 +34,12 @@ type StorageConf struct {
 type ServerConf struct {
 	Address string
 	Port    string
+}
+
+type GrpcConf struct {
+	Address string
+	Port    string
+	Enable  bool
 }
 
 func NewConfig(configFile string) (Config, error) {

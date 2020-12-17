@@ -3,7 +3,6 @@ package internalhttp
 import (
 	"context"
 	"errors"
-	"io"
 	"net"
 	"net/http"
 	"time"
@@ -15,18 +14,13 @@ import (
 
 type Server struct {
 	conf   config.ServerConf
-	app    *Application
+	app    app.Application
 	server *http.Server
 }
 
-type Application interface {
-	CreateEvent(ctx context.Context, title string) (app.EventID, error)
-	// TODO
-}
-
-func NewServer(conf config.Config, app Application) *Server {
+func NewServer(conf config.Config, app app.Application) *Server {
 	mux := http.NewServeMux()
-	mux.Handle("/", loggingMiddleware(http.HandlerFunc(HelloWorld)))
+	mux.Handle("/", loggingMiddleware(NewEventHandler(app)))
 
 	server := &http.Server{ //nolint:exhaustivestruct
 		Addr:         net.JoinHostPort(conf.Server.Address, conf.Server.Port),
@@ -38,7 +32,7 @@ func NewServer(conf config.Config, app Application) *Server {
 
 	return &Server{
 		conf:   conf.Server,
-		app:    &app,
+		app:    app,
 		server: server,
 	}
 }
@@ -61,9 +55,4 @@ func (s *Server) Stop(ctx context.Context) error {
 		return err //nolint:wrapcheck
 	}
 	return nil
-}
-
-// HelloWorld simple route.
-func HelloWorld(w http.ResponseWriter, _ *http.Request) {
-	_, _ = io.WriteString(w, "hello-world")
 }

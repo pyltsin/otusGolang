@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"time"
 
+	internalserver "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server"
+
 	"github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/app"
 	config "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/config"
 	logger "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/server/http"
 	store "github.com/pyltsin/otusGolang/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -42,7 +43,8 @@ func main() {
 
 	storage := store.NewStore(conf)
 	var calendar = app.New(storage)
-	server := internalhttp.NewServer(conf, calendar)
+
+	server := internalserver.NewServer(conf, calendar)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
